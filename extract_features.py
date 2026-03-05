@@ -25,7 +25,7 @@ def extract_rdkit_features(smiles):
         print(f"Error processing SMILES {smiles}: {e}")
         return [np.nan] * len(all_descriptor_names)
 
-def process_and_save(dataset_name, tdc_name, output_filename):
+def process_dataset(dataset_name, tdc_name, output_filename):
     print(f"\nProcessing {dataset_name} using TDC '{tdc_name}'...")
     
     # Load the dataset
@@ -49,5 +49,5 @@ def process_and_save(dataset_name, tdc_name, output_filename):
     print(f"Successfully saved to: {output_path} | shape={final_df.shape}")
 
 if __name__ == "__main__":
-    process_and_save('ClinTox', 'ClinTox', 'clintox_rdkit2d.csv')
-    process_and_save('Carcinogens', 'Carcinogens_Lagunin', 'carcinogens_rdkit2d.csv')
+    process_dataset('ClinTox', 'ClinTox', 'clintox_rdkit2d.csv')
+    process_dataset('Carcinogens', 'Carcinogens_Lagunin', 'carcinogens_rdkit2d.csv')
