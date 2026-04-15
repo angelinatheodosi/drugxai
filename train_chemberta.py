@@ -25,17 +25,17 @@ if __name__ == "__main__":
         
         # Train and evaluate Logistic Regression and Random Forest models using 5-fold/seed cross-validation
         for mtype in ["logistic", "rf"]:
-            print(f"\n> Training {mtype.upper()} model (5 seeds)...")
+            print(f"\n> Training {mtype.upper()} model...")
             res = utils.run_experiment(df, mtype)
-            
+
             print(f"Train/Valid/Test sizes: {res['n_train']} / {res['n_valid']} / {res['n_test']}")
 
             # Print evaluation metrics (ROC-AUC and PR-AUC) for test and validation sets
-            print(f"Test ROC-AUC:  {res['ROC-AUC']:.4f} (±{res['ROC-AUC_std']:.4f})")
-            print(f"Test PR-AUC:   {res['PR-AUC']:.4f} (±{res['PR-AUC_std']:.4f})")
-            
-            print(f"Valid ROC-AUC: {res['valid_ROC-AUC']:.4f} (±{res['valid_ROC-AUC_std']:.4f})")
-            print(f"Valid PR-AUC:  {res['valid_PR-AUC']:.4f} (±{res['valid_PR-AUC_std']:.4f})")
+            print(f"Test ROC-AUC:  {res['ROC-AUC']:.4f}")
+            print(f"Test PR-AUC:   {res['PR-AUC']:.4f}")
+
+            print(f"Valid ROC-AUC: {res['valid_ROC-AUC']:.4f}")
+            print(f"Valid PR-AUC:  {res['valid_PR-AUC']:.4f}")
             
             res.update({"dataset": name, "model": mtype, "features": "chemberta"})
             all_res.append(res)

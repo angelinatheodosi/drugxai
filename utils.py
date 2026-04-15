@@ -13,7 +13,7 @@ def load_tdc_dataset(tdc_name):
     data = Tox(name=tdc_name)
     split_data = data.get_split(method="scaffold")
 
-    # Combine split sets ----------
+    # Combine split sets
     df = pd.concat([split_data["train"], split_data["valid"], split_data["test"]], axis=0)
     df["split"] = (["train"] * len(split_data["train"])
                    + ["valid"] * len(split_data["valid"])
@@ -26,19 +26,19 @@ def get_feature_columns(df: pd.DataFrame, label_col="Y"):
     feat_cols = [c for c in numeric_cols if c != label_col and c != "split"]
     return feat_cols
 
-# Train and evaluate a model for a single seed
-def train_eval_once(df: pd.DataFrame, model_type="logistic", seed=0):
+# Train and evaluate a model
+def run_experiment(df: pd.DataFrame, model_type="logistic"):
     label_col = "Y"
     feat_cols = get_feature_columns(df, label_col=label_col)
 
     if "split" not in df.columns:
         raise ValueError("Split column not found in DataFrame.")
-    
+
     # Isolate data subsets
     train_df = df[df["split"] == "train"].copy()
     valid_df = df[df["split"] == "valid"].copy()
     test_df  = df[df["split"] == "test"].copy()
-    
+
     # Cleaning: replace inf with NaN and cap extreme values
     X_train = np.clip(train_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e30, 1e30)
     y_train = train_df[label_col].values
@@ -50,16 +50,14 @@ def train_eval_once(df: pd.DataFrame, model_type="logistic", seed=0):
     y_test = test_df[label_col].values
 
     if model_type == "logistic":
-        model = LogisticRegression(max_iter=10000, class_weight="balanced", random_state=seed, solver="liblinear")
-        # Scaling is important for Logistic Regression
+        model = LogisticRegression(max_iter=10000, class_weight="balanced", random_state=42, solver="liblinear")
         steps = [
             ("imputer", SimpleImputer(strategy="median")),
             ("scaler", StandardScaler()),
             ("model", model)
         ]
     elif model_type == "rf":
-        model = RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=seed, n_jobs=-1)
-        # Random Forest is scale-invariant, so we skip Scaling (but keep Imputer for NaNs)
+        model = RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42, n_jobs=-1)
         steps = [
             ("imputer", SimpleImputer(strategy="median")),
             ("model", model)
@@ -68,13 +66,12 @@ def train_eval_once(df: pd.DataFrame, model_type="logistic", seed=0):
         raise ValueError(f"Unknown model_type: {model_type}")
 
     clf = Pipeline(steps=steps)
-
     clf.fit(X_train, y_train)
 
     # Predict probabilities for evaluation
     p_valid = clf.predict_proba(X_valid)[:, 1]
     p_test  = clf.predict_proba(X_test)[:, 1]
-    
+
     # In case of single class in a split, return NaN
     def compute_auc(y, p):
         if len(np.unique(y)) < 2: return np.nan
@@ -85,34 +82,11 @@ def train_eval_once(df: pd.DataFrame, model_type="logistic", seed=0):
         return average_precision_score(y, p)
 
     return {
-        "valid_roc_auc": compute_auc(y_valid, p_valid),
-        "valid_pr_auc": compute_ap(y_valid, p_valid),
-        "test_roc_auc": compute_auc(y_test, p_test),
-        "test_pr_auc": compute_ap(y_test, p_test),
+        "ROC-AUC": compute_auc(y_test, p_test),
+        "PR-AUC": compute_ap(y_test, p_test),
+        "valid_ROC-AUC": compute_auc(y_valid, p_valid),
+        "valid_PR-AUC": compute_ap(y_valid, p_valid),
         "n_train": len(train_df),
         "n_valid": len(valid_df),
         "n_test": len(test_df)
     }
-
-# Run experiment over multiple seeds
-def run_experiment(df, model_type, seeds=(0, 1, 2, 3, 4)):
-    results = []
-    for s in seeds:
-        results.append(train_eval_once(df, model_type=model_type, seed=s))
-    res_df = pd.DataFrame(results)
-    
-    # summary mean, standard deviation (ignore NaN if a split had 1 class)
-    summary = {
-        "ROC-AUC": np.nanmean(res_df["test_roc_auc"]),
-        "ROC-AUC_std": np.nanstd(res_df["test_roc_auc"]),
-        "PR-AUC": np.nanmean(res_df["test_pr_auc"]),
-        "PR-AUC_std": np.nanstd(res_df["test_pr_auc"]),
-        "valid_ROC-AUC": np.nanmean(res_df["valid_roc_auc"]),
-        "valid_ROC-AUC_std": np.nanstd(res_df["valid_roc_auc"]),
-        "valid_PR-AUC": np.nanmean(res_df["valid_pr_auc"]),
-        "valid_PR-AUC_std": np.nanstd(res_df["valid_pr_auc"]),
-        "n_train": res_df["n_train"].iloc[0],
-        "n_valid": res_df["n_valid"].iloc[0],
-        "n_test": res_df["n_test"].iloc[0]
-    }
-    return summary

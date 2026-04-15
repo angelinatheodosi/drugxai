@@ -18,3 +18,4 @@ ENV/
 .vscode/
 .idea/
 .DS_Store
+.claude/

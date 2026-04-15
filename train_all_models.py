@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     results_df = pd.DataFrame(all_results)
     
-    # Sort for neatness
+    # Sort
     results_df = results_df.sort_values(["dataset", "features", "model"]).reset_index(drop=True)
 
     print("~" * 50)
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     print("~" * 50)
 
     # Pivot table for easier comparison
-    metric_cols = ["ROC-AUC", "ROC-AUC_std", "PR-AUC", "PR-AUC_std", "valid_ROC-AUC", "valid_PR-AUC"]
+    metric_cols = ["ROC-AUC", "PR-AUC", "valid_ROC-AUC", "valid_PR-AUC"]
     keep_cols = ["dataset", "features", "model"] + metric_cols
 
     table_df = results_df[keep_cols].pivot_table(
@@ -59,7 +59,6 @@ if __name__ == "__main__":
     results_df.to_csv("results/final_comparison_results.csv", index=False)
     table_df.to_csv("results/final_comparison_table.csv")
 
-    print("\n[Success] Saved:")
+    print("\nSuccessfully Saved:")
     print(" - results/final_comparison_results.csv (full rows)")
     print(" - results/final_comparison_table.csv (pivot table)")
-    print("~" * 50)
