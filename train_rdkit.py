@@ -4,8 +4,9 @@ import utils
 
 if __name__ == "__main__":
     datasets = [
-        ("ClinTox", "data/clintox_rdkit2d.csv"),
-        ("Carcinogens", "data/carcinogens_rdkit2d.csv")
+        ("ClinTox", "data/clintox_rdkit.csv"),
+        ("Carcinogens", "data/carcinogens_rdkit.csv"),
+        ("SkinReaction", "data/skin_reaction_rdkit.csv")
     ]
 
     all_res = []

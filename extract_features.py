@@ -49,5 +49,6 @@ def process_dataset(dataset_name, tdc_name, output_filename):
     print(f"Successfully saved to: {output_path} | shape={final_df.shape}")
 
 if __name__ == "__main__":
-    process_dataset('ClinTox', 'ClinTox', 'clintox_rdkit2d.csv')
-    process_dataset('Carcinogens', 'Carcinogens_Lagunin', 'carcinogens_rdkit2d.csv')
+    process_dataset('ClinTox', 'ClinTox', 'clintox_rdkit.csv')
+    process_dataset('Carcinogens', 'Carcinogens_Lagunin', 'carcinogens_rdkit.csv')
+    process_dataset('SkinReaction', 'Skin_Reaction', 'skin_reaction_rdkit.csv')

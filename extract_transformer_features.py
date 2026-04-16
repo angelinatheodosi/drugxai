@@ -86,3 +86,4 @@ def process_dataset(dataset_name, tdc_name, output_prefix):
 if __name__ == "__main__":
     process_dataset("ClinTox", "ClinTox", "clintox")
     process_dataset("Carcinogens", "Carcinogens_Lagunin", "carcinogens")
+    process_dataset("SkinReaction", "Skin_Reaction", "skin_reaction")

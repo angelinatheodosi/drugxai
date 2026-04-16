@@ -3,8 +3,8 @@ import pandas as pd
 import utils
 
 if __name__ == "__main__":
-    datasets = ["clintox", "carcinogens"]
-    feature_sets = ["rdkit2d", "chemberta"]
+    datasets = ["clintox", "carcinogens", "skin_reaction"]
+    feature_sets = ["rdkit", "chemberta"]
     
     all_results = []
 
