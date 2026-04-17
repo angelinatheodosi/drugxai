@@ -25,7 +25,7 @@ if __name__ == "__main__":
             df = pd.read_csv(path)
             
             # Train and evaluate Logistic Regression and Random Forest models
-            for mtype in ["logistic", "rf"]:
+            for mtype in ["logistic", "rf", "xgb"]:
                 res = utils.run_experiment(df, mtype)
                 res.update({"dataset": dname, "features": fname, "model": mtype})
                 all_results.append(res)

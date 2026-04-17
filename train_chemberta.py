@@ -25,7 +25,7 @@ if __name__ == "__main__":
         df = pd.read_csv(path)
         
         # Train and evaluate Logistic Regression and Random Forest models using 5-fold/seed cross-validation
-        for mtype in ["logistic", "rf"]:
+        for mtype in ["logistic", "rf", "xgb"]:
             print(f"\n> Training {mtype.upper()} model...")
             res = utils.run_experiment(df, mtype)
 

@@ -7,6 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, average_precision_score
+from xgboost import XGBClassifier
 
 # Load dataset from TDC and perform scaffold split
 def load_tdc_dataset(tdc_name):
@@ -58,6 +59,12 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
         ]
     elif model_type == "rf":
         model = RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42, n_jobs=-1)
+        steps = [
+            ("imputer", SimpleImputer(strategy="median")),
+            ("model", model)
+        ]
+    elif model_type == "xgb":
+        model = XGBClassifier(n_estimators=100, scale_pos_weight=10, random_state=42, use_label_encoder=False, eval_metric="logloss")
         steps = [
             ("imputer", SimpleImputer(strategy="median")),
             ("model", model)
