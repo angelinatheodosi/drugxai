@@ -77,8 +77,6 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
 
    
     clf = Pipeline(steps=steps)
-    
-
     clf.fit(X_train, y_train)
 
     # Predict probabilities for evaluation
