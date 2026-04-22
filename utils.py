@@ -76,7 +76,7 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
         raise ValueError(f"Unknown model_type: {model_type}")
 
    
-    clf = ImbPipeline(steps=steps)
+    clf = Pipeline(steps=steps)
     
 
     clf.fit(X_train, y_train)
