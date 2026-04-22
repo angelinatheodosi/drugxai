@@ -7,7 +7,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, average_precision_score
 from xgboost import XGBClassifier
-from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
 
 # Load dataset from TDC and perform scaffold split
@@ -29,7 +28,7 @@ def get_feature_columns(df: pd.DataFrame, label_col="Y"):
     return feat_cols
 
 # Train and evaluate a model
-def run_experiment(df: pd.DataFrame, model_type="logistic", use_smote=False):
+def run_experiment(df: pd.DataFrame, model_type="logistic"):
     label_col = "Y"
     feat_cols = get_feature_columns(df, label_col=label_col)
 
@@ -69,7 +68,7 @@ def run_experiment(df: pd.DataFrame, model_type="logistic", use_smote=False):
         neg = (y_train == 0).sum()
         pos = (y_train == 1).sum()
         spw = neg / pos if pos > 0 else 1.0
-        model = XGBClassifier(n_estimators=100, scale_pos_weight=spw, random_state=42, use_label_encoder=False, eval_metric="logloss")
+        model = XGBClassifier(n_estimators=100, scale_pos_weight=spw, random_state=42,eval_metric="logloss")
         steps = [
             ("imputer", SimpleImputer(strategy="median")),
             ("model", model)
@@ -77,8 +76,7 @@ def run_experiment(df: pd.DataFrame, model_type="logistic", use_smote=False):
     else:
         raise ValueError(f"Unknown model_type: {model_type}")
 
-    if use_smote:
-        steps.insert(-1, ("smote", SMOTE(random_state=42)))
+   
     clf = ImbPipeline(steps=steps)
     
 

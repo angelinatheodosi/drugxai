@@ -26,7 +26,7 @@ if __name__ == "__main__":
             
             # Train and evaluate Logistic Regression and Random Forest models
             for mtype in ["logistic", "rf", "xgb"]:
-                res = utils.run_experiment(df, mtype, use_smote=True)
+                res = utils.run_experiment(df, mtype)
                 res.update({"dataset": dname, "features": fname, "model": mtype})
                 all_results.append(res)
                 print(f"    - {mtype.upper()}: Test ROC-AUC = {res['ROC-AUC']:.4f} | Valid = {res['valid_ROC-AUC']:.4f}")
