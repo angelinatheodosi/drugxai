@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, average_precision_score
 from xgboost import XGBClassifier
-from imblearn.pipeline import Pipeline as ImbPipeline
+from sklearn.pipeline import Pipeline
 
 # Load dataset from TDC and perform scaffold split
 def load_tdc_dataset(tdc_name):
@@ -35,7 +35,6 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
     if "split" not in df.columns:
         raise ValueError("Split column not found in DataFrame.")
 
-    
     # Isolate data subsets
     train_df = df[df["split"] == "train"].copy()
     valid_df = df[df["split"] == "valid"].copy()
