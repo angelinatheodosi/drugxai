@@ -77,9 +77,10 @@ def run_experiment(df: pd.DataFrame, model_type="logistic", use_smote=False):
     else:
         raise ValueError(f"Unknown model_type: {model_type}")
 
-    clf = ImbPipeline(steps=steps)
     if use_smote:
         steps.insert(-1, ("smote", SMOTE(random_state=42)))
+    clf = ImbPipeline(steps=steps)
+    
 
     clf.fit(X_train, y_train)
 
