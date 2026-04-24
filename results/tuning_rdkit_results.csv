@@ -1,0 +1,10 @@
+dataset,features,model,best_params,valid_PR-AUC,valid_ROC-AUC,test_PR-AUC,test_ROC-AUC
+clintox,rdkit,logistic,"{'model__penalty': 'l1', 'model__C': 10}",0.9481197003688353,0.9934389140271492,0.32934758579013723,0.7493894993894994
+clintox,rdkit,rf,"{'model__n_estimators': 100, 'model__min_samples_leaf': 2, 'model__max_features': 0.3, 'model__max_depth': None}",0.9580663617428324,0.9957013574660634,0.4361942751926935,0.836462148962149
+clintox,rdkit,xgb,"{'model__subsample': 0.7, 'model__n_estimators': 100, 'model__max_depth': 7, 'model__learning_rate': 0.1, 'model__colsample_bytree': 0.8}",0.9809640522875818,0.9979638009049774,0.37665079917753375,0.8255494505494505
+carcinogens,rdkit,logistic,"{'model__penalty': 'l1', 'model__C': 0.001}",0.7088888888888889,0.7913043478260869,0.5431620064714769,0.7525252525252525
+carcinogens,rdkit,rf,"{'model__n_estimators': 300, 'model__min_samples_leaf': 10, 'model__max_features': 'sqrt', 'model__max_depth': 10}",0.8111111111111111,0.9304347826086956,0.5897027648171813,0.8313131313131312
+carcinogens,rdkit,xgb,"{'model__subsample': 1.0, 'model__n_estimators': 200, 'model__max_depth': 7, 'model__learning_rate': 0.05, 'model__colsample_bytree': 1.0}",1.0,1.0,0.5236179361179362,0.8151515151515152
+skin_reaction,rdkit,logistic,"{'model__penalty': 'l1', 'model__C': 0.001}",0.7612683036944564,0.7386363636363636,0.6262273547933322,0.6559270516717326
+skin_reaction,rdkit,rf,"{'model__n_estimators': 300, 'model__min_samples_leaf': 5, 'model__max_features': 'log2', 'model__max_depth': 3}",0.887919541709722,0.8712121212121212,0.7566917839499712,0.7276595744680852
+skin_reaction,rdkit,xgb,"{'model__subsample': 1.0, 'model__n_estimators': 100, 'model__max_depth': 3, 'model__learning_rate': 0.05, 'model__colsample_bytree': 0.8}",1.0,1.0,0.7934196783465186,0.729483282674772
