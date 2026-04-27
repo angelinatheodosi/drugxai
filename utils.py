@@ -67,7 +67,7 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
         neg = (y_train == 0).sum()
         pos = (y_train == 1).sum()
         spw = neg / pos if pos > 0 else 1.0
-        model = XGBClassifier(n_estimators=100, scale_pos_weight=spw, random_state=42,eval_metric="logloss")
+        model = XGBClassifier(n_estimators=100, scale_pos_weight=spw, random_state=42, eval_metric="logloss")
         steps = [
             ("imputer", SimpleImputer(strategy="median")),
             ("model", model)

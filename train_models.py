@@ -56,9 +56,9 @@ if __name__ == "__main__":
     print(table_df)
 
     os.makedirs("results", exist_ok=True)
-    results_df.to_csv("results/final_comparison_results.csv", index=False)
-    table_df.to_csv("results/final_comparison_table.csv")
+    results_df.to_csv("results/baseline_comparison_results.csv", index=False)
+    table_df.to_csv("results/baseline_comparison_table.csv")
 
     print("\nSuccessfully Saved:")
-    print(" - results/final_comparison_results.csv (full rows)")
-    print(" - results/final_comparison_table.csv (pivot table)")
+    print(" - results/baseline_comparison_results.csv (full rows)")
+    print(" - results/baseline_comparison_table.csv (pivot table)")

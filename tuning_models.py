@@ -29,7 +29,7 @@ for fname in feature_types:
         valid_df = df[df["split"] == "valid"]
         test_df = df[df["split"] == "test"]
         
-        feat_cols = [c for c in df.columns if c not in ["Y", "split", "Drug", "Drug_ID"]]
+        feat_cols = [c for c in df.columns if c not in ["Y", "split", "Drug"]]
 
         X_train = np.clip(train_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e30, 1e30)
         y_train = train_df["Y"].values
@@ -100,15 +100,21 @@ for fname in feature_types:
             p_valid = best.predict_proba(X_valid)[:, 1]
             p_test  = best.predict_proba(X_test)[:, 1]
 
+            def safe_ap(y, p):
+                return average_precision_score(y, p) if len(np.unique(y)) >= 2 else np.nan
+
+            def safe_auc(y, p):
+                return roc_auc_score(y, p) if len(np.unique(y)) >= 2 else np.nan
+
             all_results.append({
                 "dataset": name,
                 "features": fname,
                 "model": mtype,
                 "best_params": str(search.best_params_),
-                "valid_PR-AUC": average_precision_score(y_valid, p_valid),
-                "valid_ROC-AUC": roc_auc_score(y_valid, p_valid),
-                "test_PR-AUC": average_precision_score(y_test, p_test),
-                "test_ROC-AUC": roc_auc_score(y_test, p_test),
+                "valid_PR-AUC": safe_ap(y_valid, p_valid),
+                "valid_ROC-AUC": safe_auc(y_valid, p_valid),
+                "test_PR-AUC": safe_ap(y_test, p_test),
+                "test_ROC-AUC": safe_auc(y_test, p_test),
             })
 
 os.makedirs("results", exist_ok=True)
