@@ -29,7 +29,7 @@ for fname in feature_types:
         valid_df = df[df["split"] == "valid"]
         test_df = df[df["split"] == "test"]
         
-        feat_cols = [c for c in df.columns if c not in ["Y", "split", "Drug"]]
+        feat_cols = [c for c in df.columns if c not in ["Y", "split", "Drug", "Drug_ID"] and pd.api.types.is_numeric_dtype(df[c])]
 
         X_train = np.clip(train_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e30, 1e30)
         y_train = train_df["Y"].values

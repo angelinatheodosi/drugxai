@@ -8,17 +8,17 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from xgboost import XGBClassifier
+from xgboost import XGBClassifier, DMatrix
 
 os.makedirs("results/shap", exist_ok=True)
 
 # Best model per (dataset, feature_type)
 best_models = {
     ("clintox",       "rdkit"):    {"mtype": "rf",      "params": {"n_estimators": 100, "min_samples_leaf": 2,  "max_features": 0.3,    "max_depth": None}},
-    ("clintox",       "chemberta"):{"mtype": "logistic", "params": {"C": 0.1, "penalty": "l2"}},
+    ("clintox",       "chemberta"):{"mtype": "xgb",     "params": {}},
     ("carcinogens",   "rdkit"):    {"mtype": "rf",      "params": {"n_estimators": 300, "min_samples_leaf": 10, "max_features": "sqrt", "max_depth": 10}},
     ("carcinogens",   "chemberta"):{"mtype": "rf",      "params": {"n_estimators": 100, "min_samples_leaf": 2,  "max_features": "log2", "max_depth": 3}},
-    ("skin_reaction", "rdkit"):    {"mtype": "rf",      "params": {"n_estimators": 300, "min_samples_leaf": 5,  "max_features": "log2", "max_depth": 3}},
+    ("skin_reaction", "rdkit"):    {"mtype": "xgb",     "params": {"n_estimators": 100, "max_depth": 3, "learning_rate": 0.05, "subsample": 1.0, "colsample_bytree": 0.8}},
     ("skin_reaction", "chemberta"):{"mtype": "rf",      "params": {"n_estimators": 500, "min_samples_leaf": 5,  "max_features": "log2", "max_depth": 3}},
 }
 
@@ -26,7 +26,7 @@ for (dataset, ftype), config in best_models.items():
     print(f"\n--- {dataset} | {ftype} ---")
 
     df = pd.read_csv(f"data/{dataset}_{ftype}.csv")
-    feat_cols = [c for c in df.columns if c not in ["Y", "split", "Drug", "Drug_ID"]]
+    feat_cols = [c for c in df.columns if c not in ["Y", "split", "Drug", "Drug_ID"] and pd.api.types.is_numeric_dtype(df[c])]
 
     train_df = df[df["split"] == "train"]
     test_df  = df[df["split"] == "test"]
@@ -58,7 +58,7 @@ for (dataset, ftype), config in best_models.items():
         clf = Pipeline([
             ("imputer", SimpleImputer(strategy="median")),
             ("model", XGBClassifier(scale_pos_weight=spw, random_state=42,
-                                    eval_metric="logloss", **params))
+                                    eval_metric="logloss", base_score=0.5, **params))
         ])
 
     clf.fit(X_train, y_train)
@@ -76,6 +76,10 @@ for (dataset, ftype), config in best_models.items():
     if isinstance(model, LogisticRegression):
         explainer   = shap.LinearExplainer(model, shap.maskers.Independent(X_test_imp))
         sv          = explainer.shap_values(X_test_imp)
+    elif isinstance(model, XGBClassifier):
+        # XGBoost 2.0+ native SHAP (avoids SHAP library incompatibility)
+        contribs = model.get_booster().predict(DMatrix(X_test_imp), pred_contribs=True)
+        sv = contribs[:, :-1]  # last column is bias term
     else:
         explainer   = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(X_test_imp)
