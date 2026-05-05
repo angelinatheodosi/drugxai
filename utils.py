@@ -23,8 +23,9 @@ def load_tdc_dataset(tdc_name):
 
 # Identify numeric feature columns by excluding label and split columns
 def get_feature_columns(df: pd.DataFrame, label_col="Y"):
+    exclude_cols = {label_col, "split", "Drug", "Drug_ID"}
     numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
-    feat_cols = [c for c in numeric_cols if c != label_col and c != "split"]
+    feat_cols = [c for c in numeric_cols if c not in exclude_cols]
     return feat_cols
 
 # Train and evaluate a model
