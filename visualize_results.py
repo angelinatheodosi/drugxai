@@ -125,7 +125,5 @@ for (dataset, ftype), group in all_models.groupby(["dataset", "features"]):
 
 best_df = pd.DataFrame(best_rows)
 best_df.to_csv("results/figures/best_models_summary.csv", index=False)
-print("\nBest model per (dataset, features):")
-print(best_df.to_string(index=False))
-
-print("\nDone. All figures in results/figures/")
+print("Saved: results/figures/best_models_summary.csv")
+print("Done. All figures in results/figures/")

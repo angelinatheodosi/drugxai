@@ -15,6 +15,7 @@ transformers==4.50.3
 # ML models
 scikit-learn==1.7.2
 xgboost==3.1.1
+imbalanced-learn
 
 # Explainability
 shap==0.49.1

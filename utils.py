@@ -1,3 +1,4 @@
+import ast
 import numpy as np
 import pandas as pd
 from tdc.single_pred import Tox
@@ -23,7 +24,7 @@ def load_tdc_dataset(tdc_name):
                    + ["test"] * len(split_data["test"]))
     return df.reset_index(drop=True)
 
-# Identify numeric feature columns by excluding label and split columns
+# Identify numeric feature columns by excluding label, split, and id columns
 def get_feature_columns(df: pd.DataFrame, label_col="Y"):
     exclude_cols = {label_col, "split", "Drug", "Drug_ID"}
     numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
@@ -107,3 +108,51 @@ def run_experiment(df: pd.DataFrame, model_type="logistic", use_smote=False):
         "n_valid": len(valid_df),
         "n_test": len(test_df)
     }
+
+
+def load_best_models(tuning_csv="results/tuning_results.csv"):
+    """Return best model config per (dataset, features) keyed by test_PR-AUC."""
+    df = pd.read_csv(tuning_csv)
+    best = {}
+    for (dataset, ftype), group in df.groupby(["dataset", "features"]):
+        row = group.loc[group["test_PR-AUC"].idxmax()]
+        raw_params = ast.literal_eval(row["best_params"])
+        params = {k.replace("model__", ""): v for k, v in raw_params.items()}
+        best[(dataset, ftype)] = {"mtype": row["model"], "params": params}
+    return best
+
+
+def build_best_pipeline(mtype, params, y_train=None):
+    """Build an ImbPipeline with SMOTE for the given model type and tuned params."""
+    spw = 1.0
+    if mtype == "xgb" and y_train is not None:
+        neg, pos = (y_train == 0).sum(), (y_train == 1).sum()
+        spw = neg / pos if pos > 0 else 1.0
+
+    if mtype == "logistic":
+        model = LogisticRegression(
+            max_iter=10000, class_weight="balanced", random_state=42,
+            solver="liblinear", **params
+        )
+        return ImbPipeline([
+            ("imputer", SimpleImputer(strategy="median")),
+            ("smote", SMOTE(random_state=42)),
+            ("scaler", StandardScaler()),
+            ("model", model),
+        ])
+    elif mtype == "rf":
+        model = RandomForestClassifier(
+            class_weight="balanced", random_state=42, n_jobs=-1, **params
+        )
+    elif mtype == "xgb":
+        model = XGBClassifier(
+            scale_pos_weight=spw, random_state=42, eval_metric="logloss", **params
+        )
+    else:
+        raise ValueError(f"Unknown model type: {mtype}")
+
+    return ImbPipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("smote", SMOTE(random_state=42)),
+        ("model", model),
+    ])

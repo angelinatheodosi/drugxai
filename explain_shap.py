@@ -3,86 +3,47 @@ import numpy as np
 import pandas as pd
 import shap
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from xgboost import XGBClassifier, DMatrix
+from xgboost import DMatrix
+import utils
 
 os.makedirs("results/shap", exist_ok=True)
 
-# Best model per (dataset, feature_type)
-best_models = {
-    ("clintox",       "rdkit"):    {"mtype": "rf",      "params": {"n_estimators": 100, "min_samples_leaf": 2,  "max_features": 0.3,    "max_depth": None}},
-    ("clintox",       "chemberta"):{"mtype": "xgb",     "params": {}},
-    ("carcinogens",   "rdkit"):    {"mtype": "rf",      "params": {"n_estimators": 300, "min_samples_leaf": 10, "max_features": "sqrt", "max_depth": 10}},
-    ("carcinogens",   "chemberta"):{"mtype": "rf",      "params": {"n_estimators": 100, "min_samples_leaf": 2,  "max_features": "log2", "max_depth": 3}},
-    ("skin_reaction", "rdkit"):    {"mtype": "xgb",     "params": {"n_estimators": 100, "max_depth": 3, "learning_rate": 0.05, "subsample": 1.0, "colsample_bytree": 0.8}},
-    ("skin_reaction", "chemberta"):{"mtype": "rf",      "params": {"n_estimators": 500, "min_samples_leaf": 5,  "max_features": "log2", "max_depth": 3}},
-}
+best_models = utils.load_best_models()
 
 for (dataset, ftype), config in best_models.items():
-    print(f"\n--- {dataset} | {ftype} ---")
-
     df = pd.read_csv(f"data/{dataset}_{ftype}.csv")
-    feat_cols = [c for c in df.columns if c not in ["Y", "split", "Drug", "Drug_ID"] and pd.api.types.is_numeric_dtype(df[c])]
+    feat_cols = utils.get_feature_columns(df)
 
     train_df = df[df["split"] == "train"]
     test_df  = df[df["split"] == "test"]
 
-    X_train = np.clip(train_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e10, 1e10)
+    X_train = np.clip(train_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e30, 1e30)
     y_train = train_df["Y"].values
-    X_test  = np.clip(test_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e10, 1e10)
+    X_test  = np.clip(test_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e30, 1e30)
 
     mtype  = config["mtype"]
     params = config["params"]
 
-
-    if mtype == "rf":
-        clf = Pipeline([
-            ("imputer", SimpleImputer(strategy="median")),
-            ("model", RandomForestClassifier(class_weight="balanced", random_state=42, n_jobs=-1, **params))
-        ])
-    elif mtype == "logistic":
-        clf = Pipeline([
-            ("imputer", SimpleImputer(strategy="median")),
-            ("scaler", StandardScaler()),
-            ("model", LogisticRegression(max_iter=10000, class_weight="balanced",
-                                         random_state=42, solver="liblinear", **params))
-        ])
-    elif mtype == "xgb":
-        neg = (y_train == 0).sum()
-        pos = (y_train == 1).sum()
-        spw = neg / pos if pos > 0 else 1.0
-        clf = Pipeline([
-            ("imputer", SimpleImputer(strategy="median")),
-            ("model", XGBClassifier(scale_pos_weight=spw, random_state=42,
-                                    eval_metric="logloss", base_score=0.5, **params))
-        ])
-
+    clf = utils.build_best_pipeline(mtype, params, y_train)
     clf.fit(X_train, y_train)
 
-    # Prepare imputed (+ scaled) data for SHAP
     imputer = clf.named_steps["imputer"]
     model   = clf.named_steps["model"]
-    X_test_imp = imputer.transform(X_test)
-
+    X_test_proc = imputer.transform(X_test)
     if mtype == "logistic":
-        scaler     = clf.named_steps["scaler"]
-        X_test_imp = scaler.transform(X_test_imp)
+        X_test_proc = clf.named_steps["scaler"].transform(X_test_proc)
 
     # SHAP explainer
-    if isinstance(model, LogisticRegression):
-        explainer   = shap.LinearExplainer(model, shap.maskers.Independent(X_test_imp))
-        sv          = explainer.shap_values(X_test_imp)
-    elif isinstance(model, XGBClassifier):
-        # XGBoost 2.0+ native SHAP (avoids SHAP library incompatibility)
-        contribs = model.get_booster().predict(DMatrix(X_test_imp), pred_contribs=True)
-        sv = contribs[:, :-1]  # last column is bias term
+    if mtype == "logistic":
+        explainer = shap.LinearExplainer(model, shap.maskers.Independent(X_test_proc))
+        sv = explainer.shap_values(X_test_proc)
+    elif mtype == "xgb":
+        # XGBoost 2.0+ native SHAP
+        contribs = model.get_booster().predict(DMatrix(X_test_proc), pred_contribs=True)
+        sv = contribs[:, :-1]
     else:
         explainer   = shap.TreeExplainer(model)
-        shap_values = explainer.shap_values(X_test_imp)
+        shap_values = explainer.shap_values(X_test_proc)
         if isinstance(shap_values, list):
             sv = shap_values[1]
         elif isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
@@ -92,7 +53,7 @@ for (dataset, ftype), config in best_models.items():
 
     # Beeswarm plot
     plt.figure()
-    shap.summary_plot(sv, X_test_imp, feature_names=feat_cols, show=False, max_display=15)
+    shap.summary_plot(sv, X_test_proc, feature_names=feat_cols, show=False, max_display=15)
     plt.title(f"{dataset} | {ftype}")
     plt.tight_layout()
     plt.savefig(f"results/shap/{dataset}_{ftype}_beeswarm.png", dpi=150, bbox_inches="tight")
@@ -105,6 +66,5 @@ for (dataset, ftype), config in best_models.items():
                 .head(15)
                 .reset_index(drop=True))
     top_df.to_csv(f"results/shap/{dataset}_{ftype}_top_features.csv", index=False)
-    print(f"  Top feature: {top_df.iloc[0]['feature']} ({top_df.iloc[0]['mean_abs_shap']:.4f})")
 
-print("\nDone. Results in results/shap/")
+print("Done. Results in results/shap/")
