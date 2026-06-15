@@ -26,10 +26,12 @@ if __name__ == "__main__":
             
             # Train and evaluate Logistic Regression and Random Forest models
             for mtype in ["logistic", "rf", "xgb"]:
-                res = utils.run_experiment(df, mtype)
-                res.update({"dataset": dname, "features": fname, "model": mtype})
-                all_results.append(res)
-                print(f"    - {mtype.upper()}: Test ROC-AUC = {res['ROC-AUC']:.4f} | Valid = {res['valid_ROC-AUC']:.4f}")
+                for use_smote in [False, True]:
+                    res = utils.run_experiment(df, mtype, use_smote=use_smote)
+                    res.update({"dataset": dname, "features": fname, "model": mtype, "smote": use_smote})
+                    all_results.append(res)
+                    smote_tag = "+SMOTE" if use_smote else "      "
+                    print(f"    - {mtype.upper()} {smote_tag}: Test ROC-AUC = {res['ROC-AUC']:.4f} | Valid = {res['valid_ROC-AUC']:.4f}")
 
     results_df = pd.DataFrame(all_results)
     
@@ -41,11 +43,11 @@ if __name__ == "__main__":
     print("~" * 50)
 
     metric_cols = ["ROC-AUC", "PR-AUC", "valid_ROC-AUC", "valid_PR-AUC"]
-    keep_cols = ["dataset", "features", "model"] + metric_cols
+    keep_cols = ["dataset", "features", "model", "smote"] + metric_cols
     results_df = results_df[keep_cols + ["n_train", "n_valid", "n_test"]]
 
     table_df = results_df[keep_cols].pivot_table(
-        index=["dataset", "features"],
+        index=["dataset", "features", "smote"],
         columns="model",
         values=metric_cols,
         aggfunc="first"
