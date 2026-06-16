@@ -103,10 +103,7 @@ def run_experiment(df: pd.DataFrame, model_type="logistic", use_smote=False):
         "ROC-AUC": compute_auc(y_test, p_test),
         "PR-AUC": compute_ap(y_test, p_test),
         "valid_ROC-AUC": compute_auc(y_valid, p_valid),
-        "valid_PR-AUC": compute_ap(y_valid, p_valid),
-        "n_train": len(train_df),
-        "n_valid": len(valid_df),
-        "n_test": len(test_df)
+        "valid_PR-AUC": compute_ap(y_valid, p_valid)
     }
 
 
