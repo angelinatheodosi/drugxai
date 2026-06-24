@@ -37,8 +37,6 @@ def process_dataset(dataset_name, tdc_name, output_filename):
     
     feat_df = pd.DataFrame(features, columns=all_descriptor_names)
     
-    # Handle numerical issues (inf-to-nan)
-    feat_df.replace([np.inf, -np.inf], np.nan, inplace=True)
         
     final_df = pd.concat([df, feat_df], axis=1)
     
