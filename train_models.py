@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     metric_cols = ["ROC-AUC", "PR-AUC", "valid_ROC-AUC", "valid_PR-AUC"]
     keep_cols = ["dataset", "features", "model", "smote"] + metric_cols
-    results_df = results_df[keep_cols + ["n_train", "n_valid", "n_test"]]
+    results_df = results_df[keep_cols]
 
     table_df = results_df[keep_cols].pivot_table(
         index=["dataset", "features", "smote"],
