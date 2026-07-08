@@ -30,13 +30,15 @@ if __name__ == "__main__":
 
         imputer = clf.named_steps["imputer"]
         model   = clf.named_steps["model"]
-        X_test_proc = imputer.transform(X_test)
+        X_train_proc = imputer.transform(X_train)
+        X_test_proc  = imputer.transform(X_test)
         if mtype == "logistic":
-            X_test_proc = clf.named_steps["scaler"].transform(X_test_proc)
+            X_train_proc = clf.named_steps["scaler"].transform(X_train_proc)
+            X_test_proc  = clf.named_steps["scaler"].transform(X_test_proc)
 
-        # SHAP explainer
+        # SHAP explainer (background = train, instances explained = test)
         if mtype == "logistic":
-            explainer = shap.LinearExplainer(model, shap.maskers.Independent(X_test_proc))
+            explainer = shap.LinearExplainer(model, shap.maskers.Independent(X_train_proc))
             sv = explainer.shap_values(X_test_proc)
         elif mtype == "xgb":
             # XGBoost 2.0+ native SHAP
