@@ -102,11 +102,11 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
 
 
 def load_best_models(tuning_csv="results/tuning_results.csv"):
-    """Return best model config per (dataset, features) keyed by test_PR-AUC."""
+    """Return best model config per (dataset, features) keyed by valid_PR-AUC."""
     df = pd.read_csv(tuning_csv)
     best = {}
     for (dataset, ftype), group in df.groupby(["dataset", "features"]):
-        row = group.loc[group["test_PR-AUC"].idxmax()]
+        row = group.loc[group["valid_PR-AUC"].idxmax()]
         raw_params = ast.literal_eval(row["best_params"])
         params = {k.replace("model__", ""): v for k, v in raw_params.items()}
         best[(dataset, ftype)] = {"mtype": row["model"], "params": params}
