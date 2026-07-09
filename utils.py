@@ -9,8 +9,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, average_precision_score
 from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
-from imblearn.over_sampling import SMOTE
-from imblearn.pipeline import Pipeline as ImbPipeline
 
 # Load dataset from TDC and perform scaffold split
 def load_tdc_dataset(tdc_name):
@@ -32,7 +30,7 @@ def get_feature_columns(df: pd.DataFrame, label_col="Y"):
     return feat_cols
 
 # Train and evaluate a model
-def run_experiment(df: pd.DataFrame, model_type="logistic", use_smote=False):
+def run_experiment(df: pd.DataFrame, model_type="logistic"):
     label_col = "Y"
     feat_cols = get_feature_columns(df, label_col=label_col)
 
@@ -79,11 +77,7 @@ def run_experiment(df: pd.DataFrame, model_type="logistic", use_smote=False):
     else:
         raise ValueError(f"Unknown model_type: {model_type}")
 
-    if use_smote:
-        smote_steps = [steps[0], ("smote", SMOTE(random_state=42))] + steps[1:]
-        clf = ImbPipeline(steps=smote_steps)
-    else:
-        clf = Pipeline(steps=steps)
+    clf = Pipeline(steps=steps)
     clf.fit(X_train, y_train)
 
     # Predict probabilities for evaluation
@@ -120,7 +114,7 @@ def load_best_models(tuning_csv="results/tuning_results.csv"):
 
 
 def build_best_pipeline(mtype, params, y_train=None):
-    """Build an ImbPipeline with SMOTE for the given model type and tuned params."""
+    """Build a Pipeline with class-weight imbalance handling and tuned params."""
     spw = 1.0
     if mtype == "xgb" and y_train is not None:
         neg, pos = (y_train == 0).sum(), (y_train == 1).sum()
@@ -131,9 +125,8 @@ def build_best_pipeline(mtype, params, y_train=None):
             max_iter=10000, class_weight="balanced", random_state=42,
             solver="liblinear", **params
         )
-        return ImbPipeline([
+        return Pipeline([
             ("imputer", SimpleImputer(strategy="median")),
-            ("smote", SMOTE(random_state=42)),
             ("scaler", StandardScaler()),
             ("model", model),
         ])
@@ -148,8 +141,7 @@ def build_best_pipeline(mtype, params, y_train=None):
     else:
         raise ValueError(f"Unknown model type: {mtype}")
 
-    return ImbPipeline([
+    return Pipeline([
         ("imputer", SimpleImputer(strategy="median")),
-        ("smote", SMOTE(random_state=42)),
         ("model", model),
     ])

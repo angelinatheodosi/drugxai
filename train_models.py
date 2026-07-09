@@ -19,10 +19,9 @@ if __name__ == "__main__":
 
             # Train and evaluate all three classifiers
             for mtype in ["logistic", "rf", "xgb"]:
-                for use_smote in [False, True]:
-                    res = utils.run_experiment(df, mtype, use_smote=use_smote)
-                    res.update({"dataset": dname, "features": fname, "model": mtype, "smote": use_smote})
-                    all_results.append(res)
+                res = utils.run_experiment(df, mtype)
+                res.update({"dataset": dname, "features": fname, "model": mtype})
+                all_results.append(res)
 
     results_df = pd.DataFrame(all_results)
     
@@ -32,11 +31,11 @@ if __name__ == "__main__":
 
 
     metric_cols = ["ROC-AUC", "PR-AUC", "valid_ROC-AUC", "valid_PR-AUC"]
-    keep_cols = ["dataset", "features", "model", "smote"] + metric_cols
+    keep_cols = ["dataset", "features", "model"] + metric_cols
     results_df = results_df[keep_cols]
 
-    table_df = results_df[keep_cols].pivot_table(
-        index=["dataset", "features", "smote"],
+    table_df = results_df.pivot_table(
+        index=["dataset", "features"],
         columns="model",
         values=metric_cols,
         aggfunc="first"

@@ -7,8 +7,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import RandomizedSearchCV, PredefinedSplit
 from sklearn.metrics import average_precision_score, roc_auc_score
-from imblearn.over_sampling import SMOTE
-from imblearn.pipeline import Pipeline as ImbPipeline
+from sklearn.pipeline import Pipeline
 import os
 
 
@@ -59,9 +58,8 @@ if __name__ == "__main__":
             experiments = [
                 (
                     "logistic",
-                    ImbPipeline([
+                    Pipeline([
                         ("imputer", SimpleImputer(strategy="median")),
-                        ("smote",   SMOTE(random_state=42)),
                         ("scaler",  StandardScaler()),
                         ("model",   LogisticRegression(max_iter=10000, class_weight="balanced",
                                                        random_state=42, solver="liblinear")),
@@ -71,9 +69,8 @@ if __name__ == "__main__":
                 ),
                 (
                     "rf",
-                    ImbPipeline([
+                    Pipeline([
                         ("imputer", SimpleImputer(strategy="median")),
-                        ("smote",   SMOTE(random_state=42)),
                         ("model",   RandomForestClassifier(class_weight="balanced",
                                                            random_state=42, n_jobs=-1)),
                     ]),
@@ -87,9 +84,8 @@ if __name__ == "__main__":
                 ),
                 (
                     "xgb",
-                    ImbPipeline([
+                    Pipeline([
                         ("imputer", SimpleImputer(strategy="median")),
-                        ("smote",   SMOTE(random_state=42)),
                         ("model",   XGBClassifier(scale_pos_weight=spw, random_state=42,
                                                   eval_metric="logloss")),
                     ]),
