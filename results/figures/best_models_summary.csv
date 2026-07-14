@@ -1,7 +1,7 @@
 Dataset,Features,Best Model,Source,Test PR-AUC,Test ROC-AUC
-Carcinogens,Chemberta,Random Forest,tuned,0.58,0.8051
-Carcinogens,Rdkit,XGBoost,tuned,0.6174,0.8192
+Carcinogens,Chemberta,Random Forest,tuned,0.5656,0.8232
+Carcinogens,Rdkit,Random Forest,tuned,0.6093,0.8232
 ClinTox,Chemberta,XGBoost,baseline,0.336,0.7086
-ClinTox,Rdkit,Random Forest,tuned,0.4362,0.8365
-Skin Reaction,Chemberta,Random Forest,tuned,0.8067,0.735
+ClinTox,Rdkit,XGBoost,tuned,0.3793,0.8104
+Skin Reaction,Chemberta,Random Forest,baseline,0.7105,0.6578
 Skin Reaction,Rdkit,XGBoost,baseline,0.7702,0.6584

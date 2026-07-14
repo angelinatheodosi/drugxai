@@ -8,7 +8,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import RandomizedSearchCV, PredefinedSplit
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.pipeline import Pipeline
+from sklearn.base import clone
 import os
+import utils
 
 
 def safe_ap(y, p):
@@ -36,8 +38,7 @@ if __name__ == "__main__":
             valid_df = df[df["split"] == "valid"]
             test_df  = df[df["split"] == "test"]
 
-            feat_cols = [c for c in df.columns if c not in ["Y", "split", "Drug", "Drug_ID"]
-                         and pd.api.types.is_numeric_dtype(df[c])]
+            feat_cols = utils.get_feature_columns(df)
 
             X_train = np.clip(train_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e30, 1e30)
             y_train = train_df["Y"].values
@@ -106,12 +107,15 @@ if __name__ == "__main__":
                     n_iter=n_iter,
                     scoring="average_precision",
                     cv=ps,
+                    refit=False,          # don't refit on train+valid; we refit on train only below
                     random_state=42,
                     n_jobs=-1,
                 )
                 search.fit(X_combined, y_combined)
 
-                best = search.best_estimator_
+                # Refit the winning config on TRAIN ONLY, so valid stays a clean hold-out
+                best = clone(pipe).set_params(**search.best_params_)
+                best.fit(X_train, y_train)
                 p_valid = best.predict_proba(X_valid)[:, 1]
                 p_test  = best.predict_proba(X_test)[:, 1]
 

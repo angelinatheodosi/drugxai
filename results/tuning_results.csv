@@ -1,19 +1,19 @@
 dataset,features,model,best_params,valid_PR-AUC,valid_ROC-AUC,test_PR-AUC,test_ROC-AUC
-clintox,rdkit,logistic,"{'model__penalty': 'l2', 'model__C': 100}",0.9487222014311798,0.9938914027149321,0.36983055536329984,0.7912087912087912
-clintox,rdkit,rf,"{'model__n_estimators': 100, 'model__min_samples_leaf': 2, 'model__max_features': 0.3, 'model__max_depth': None}",0.9580663617428324,0.9957013574660634,0.4361942751926935,0.836462148962149
-clintox,rdkit,xgb,"{'model__subsample': 0.7, 'model__n_estimators': 100, 'model__max_depth': 5, 'model__learning_rate': 0.1, 'model__colsample_bytree': 0.7}",0.9809640522875818,0.9979638009049774,0.4296412069924914,0.8302808302808302
-carcinogens,rdkit,logistic,"{'model__penalty': 'l1', 'model__C': 10}",1.0,1.0,0.5410094646039173,0.8313131313131313
-carcinogens,rdkit,rf,"{'model__n_estimators': 500, 'model__min_samples_leaf': 2, 'model__max_features': 0.3, 'model__max_depth': 3}",0.8392857142857142,0.9478260869565217,0.6154899604097466,0.8313131313131313
-carcinogens,rdkit,xgb,"{'model__subsample': 1.0, 'model__n_estimators': 100, 'model__max_depth': 3, 'model__learning_rate': 0.1, 'model__colsample_bytree': 1.0}",1.0,1.0,0.6174298033981829,0.8191919191919191
-skin_reaction,rdkit,logistic,"{'model__penalty': 'l2', 'model__C': 1}",1.0,1.0,0.6317946798171181,0.6103343465045593
-skin_reaction,rdkit,rf,"{'model__n_estimators': 300, 'model__min_samples_leaf': 5, 'model__max_features': 'log2', 'model__max_depth': 3}",0.887919541709722,0.8712121212121212,0.7566917839499712,0.7276595744680852
-skin_reaction,rdkit,xgb,"{'model__subsample': 1.0, 'model__n_estimators': 200, 'model__max_depth': 3, 'model__learning_rate': 0.2, 'model__colsample_bytree': 1.0}",1.0,1.0,0.757376245588603,0.7075987841945288
-clintox,chemberta,logistic,"{'model__penalty': 'l2', 'model__C': 0.001}",0.4410296448669888,0.8830316742081448,0.27135258347704583,0.7489316239316239
-clintox,chemberta,rf,"{'model__n_estimators': 100, 'model__min_samples_leaf': 5, 'model__max_features': 0.3, 'model__max_depth': 10}",0.9279783461444361,0.9929864253393664,0.21925561234555374,0.7104700854700854
-clintox,chemberta,xgb,"{'model__subsample': 0.7, 'model__n_estimators': 300, 'model__max_depth': 7, 'model__learning_rate': 0.1, 'model__colsample_bytree': 0.7}",0.9809640522875817,0.9979638009049774,0.2334167390238126,0.7295482295482295
-carcinogens,chemberta,logistic,"{'model__penalty': 'l1', 'model__C': 0.1}",0.8761904761904762,0.9652173913043479,0.5771343981688809,0.807070707070707
-carcinogens,chemberta,rf,"{'model__n_estimators': 100, 'model__min_samples_leaf': 2, 'model__max_features': 'log2', 'model__max_depth': 3}",0.9666666666666666,0.991304347826087,0.5799978896816842,0.805050505050505
-carcinogens,chemberta,xgb,"{'model__subsample': 0.8, 'model__n_estimators': 300, 'model__max_depth': 5, 'model__learning_rate': 0.2, 'model__colsample_bytree': 1.0}",1.0,1.0,0.5518658673042333,0.7787878787878788
-skin_reaction,chemberta,logistic,"{'model__penalty': 'l2', 'model__C': 1}",1.0,1.0,0.6214434451284099,0.5319148936170213
-skin_reaction,chemberta,rf,"{'model__n_estimators': 200, 'model__min_samples_leaf': 5, 'model__max_features': 'log2', 'model__max_depth': None}",0.9980237154150198,0.9974747474747474,0.8066879945353145,0.7349544072948329
-skin_reaction,chemberta,xgb,"{'model__subsample': 0.7, 'model__n_estimators': 200, 'model__max_depth': 3, 'model__learning_rate': 0.01, 'model__colsample_bytree': 1.0}",0.9980237154150198,0.9974747474747474,0.7496529716288511,0.6790273556231002
+clintox,rdkit,logistic,"{'model__penalty': 'l2', 'model__C': 100}",0.6463697778944044,0.9305429864253394,0.36112925863527906,0.8105921855921856
+clintox,rdkit,rf,"{'model__n_estimators': 100, 'model__min_samples_leaf': 2, 'model__max_features': 0.3, 'model__max_depth': None}",0.46342045433574974,0.9036199095022625,0.3684850121456136,0.7979242979242979
+clintox,rdkit,xgb,"{'model__subsample': 0.7, 'model__n_estimators': 100, 'model__max_depth': 5, 'model__learning_rate': 0.1, 'model__colsample_bytree': 0.7}",0.5763857601686274,0.9377828054298641,0.37929499532473226,0.8104395604395604
+carcinogens,rdkit,logistic,"{'model__penalty': 'l1', 'model__C': 10}",0.8625,0.9043478260869565,0.5792020275092375,0.8090909090909091
+carcinogens,rdkit,rf,"{'model__n_estimators': 500, 'model__min_samples_leaf': 2, 'model__max_features': 0.3, 'model__max_depth': 3}",0.7291666666666665,0.8347826086956522,0.6092788950861051,0.8232323232323232
+carcinogens,rdkit,xgb,"{'model__subsample': 1.0, 'model__n_estimators': 100, 'model__max_depth': 3, 'model__learning_rate': 0.1, 'model__colsample_bytree': 1.0}",0.7555555555555555,0.8695652173913043,0.535817317357565,0.8353535353535354
+skin_reaction,rdkit,logistic,"{'model__penalty': 'l2', 'model__C': 1}",0.7615272119282814,0.7323232323232323,0.5199871954524045,0.45471124620060793
+skin_reaction,rdkit,rf,"{'model__n_estimators': 300, 'model__min_samples_leaf': 5, 'model__max_features': 'log2', 'model__max_depth': 3}",0.7204085032111868,0.6616161616161617,0.7208012487719866,0.6796352583586626
+skin_reaction,rdkit,xgb,"{'model__subsample': 1.0, 'model__n_estimators': 200, 'model__max_depth': 3, 'model__learning_rate': 0.2, 'model__colsample_bytree': 1.0}",0.756835764539217,0.7297979797979798,0.7515048466058978,0.6693009118541033
+clintox,chemberta,logistic,"{'model__penalty': 'l2', 'model__C': 0.001}",0.2864650673591899,0.7518099547511312,0.2211537925262241,0.7104700854700855
+clintox,chemberta,rf,"{'model__n_estimators': 100, 'model__min_samples_leaf': 5, 'model__max_features': 0.3, 'model__max_depth': 10}",0.29581748329563784,0.7712669683257918,0.18324688424911545,0.6988705738705738
+clintox,chemberta,xgb,"{'model__subsample': 0.7, 'model__n_estimators': 300, 'model__max_depth': 7, 'model__learning_rate': 0.1, 'model__colsample_bytree': 0.7}",0.355907632468079,0.8187782805429864,0.265641297036516,0.719017094017094
+carcinogens,chemberta,logistic,"{'model__penalty': 'l1', 'model__C': 0.1}",0.8583333333333332,0.9565217391304348,0.5635549201531607,0.7969696969696969
+carcinogens,chemberta,rf,"{'model__n_estimators': 100, 'model__min_samples_leaf': 2, 'model__max_features': 'log2', 'model__max_depth': 3}",0.7282051282051281,0.8347826086956522,0.5655684284629766,0.8232323232323233
+carcinogens,chemberta,xgb,"{'model__subsample': 0.8, 'model__n_estimators': 300, 'model__max_depth': 5, 'model__learning_rate': 0.2, 'model__colsample_bytree': 1.0}",0.8111111111111111,0.9304347826086956,0.5092628304393011,0.7424242424242424
+skin_reaction,chemberta,logistic,"{'model__penalty': 'l2', 'model__C': 1}",0.7641868875190654,0.7449494949494949,0.6067757528050333,0.4984802431610943
+skin_reaction,chemberta,rf,"{'model__n_estimators': 200, 'model__min_samples_leaf': 5, 'model__max_features': 'log2', 'model__max_depth': None}",0.7996474566507851,0.7803030303030303,0.7097108891278127,0.6680851063829787
+skin_reaction,chemberta,xgb,"{'model__subsample': 0.7, 'model__n_estimators': 200, 'model__max_depth': 3, 'model__learning_rate': 0.01, 'model__colsample_bytree': 1.0}",0.7990547848541596,0.73989898989899,0.6873077003875755,0.6316109422492402
