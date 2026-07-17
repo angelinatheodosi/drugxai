@@ -62,7 +62,7 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
     if model_type not in BASELINE_PARAMS:
         raise ValueError(f"Unknown model_type: {model_type}")
 
-    clf = build_best_pipeline(model_type, BASELINE_PARAMS[model_type], y_train)
+    clf = build_pipeline(model_type, BASELINE_PARAMS[model_type], y_train)
     clf.fit(X_train, y_train)
 
     # Predict probabilities for evaluation
@@ -98,7 +98,7 @@ def load_best_models(tuning_csv="results/tuning_results.csv"):
     return best
 
 
-def build_best_pipeline(mtype, params, y_train=None):
+def build_pipeline(mtype, params, y_train=None):
     """Build a Pipeline with class-weight imbalance handling and tuned params."""
     spw = 1.0
     if mtype == "xgb" and y_train is not None:

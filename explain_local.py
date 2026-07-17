@@ -26,7 +26,7 @@ if __name__ == "__main__":
         mtype  = config["mtype"]
         params = config["params"]
 
-        clf = utils.build_best_pipeline(mtype, params, y_train)
+        clf = utils.build_pipeline(mtype, params, y_train)
         clf.fit(X_train, y_train)
 
         imputer = clf.named_steps["imputer"]

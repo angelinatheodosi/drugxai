@@ -46,13 +46,13 @@ if __name__ == "__main__":
             print(f"[Skip] {dataset}/{ftype}: single class in test set.")
             continue
 
-        clf = utils.build_best_pipeline(mtype, params, y_train)
+        clf = utils.build_pipeline(mtype, params, y_train)
         clf.fit(X_train, y_train)
 
         probs = clf.predict_proba(X_test)[:, 1]
         preds = clf.predict(X_test)
 
-        # ── Confusion matrix ──────────────────────────────────────────────────────
+        # Confusion matrix
         fig, axes = plt.subplots(1, 2, figsize=(10, 4))
         ConfusionMatrixDisplay(confusion_matrix(y_test, preds)).plot(
             ax=axes[0], colorbar=False)
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                     dpi=150, bbox_inches="tight")
         plt.close()
 
-        # ── ROC curve ─────────────────────────────────────────────────────────────
+        # ROC curve
         fpr, tpr, _ = roc_curve(y_test, probs)
         auc_val = sklearn_auc(fpr, tpr)
         roc_data[dataset][ftype] = (fpr, tpr, auc_val, mtype)
@@ -85,7 +85,7 @@ if __name__ == "__main__":
                     dpi=150, bbox_inches="tight")
         plt.close()
 
-        # ── Precision-Recall curve ────────────────────────────────────────────────
+        # Precision-Recall curve
         precision, recall, _ = precision_recall_curve(y_test, probs)
         ap = average_precision_score(y_test, probs)
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
                     dpi=150, bbox_inches="tight")
         plt.close()
 
-        # ── Classification report ─────────────────────────────────────────────────
+        # Classification report
         rep = classification_report(y_test, preds, output_dict=True, zero_division=0)
         report_rows.append({
             "Dataset":          DATASET_LABELS[dataset],
@@ -121,7 +121,7 @@ if __name__ == "__main__":
             "PR-AUC":           round(ap, 4),
         })
 
-    # ── Summary ROC plot (all datasets side-by-side) ──────────────────────────────
+    # Summary ROC plot
     fig, axes = plt.subplots(1, 3, figsize=(14, 4.5))
     for ax, dataset in zip(axes, DATASETS):
         for ftype, color in FEATURE_COLORS.items():
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     plt.savefig("results/evaluation/roc_all.png", dpi=150, bbox_inches="tight")
     plt.close()
 
-    # ── Save classification report CSV ────────────────────────────────────────────
+    # Save classification report CSV
     pd.DataFrame(report_rows).to_csv("results/evaluation/classification_report.csv", index=False)
     print("Saved: results/evaluation/")
     print("Done. All evaluation results in results/evaluation/")

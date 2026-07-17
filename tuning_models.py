@@ -49,13 +49,13 @@ if __name__ == "__main__":
             experiments = [
                 (
                     "logistic",
-                    utils.build_best_pipeline("logistic", {}, y_train),
+                    utils.build_pipeline("logistic", {}, y_train),
                     {"model__C": [0.001, 0.01, 0.1, 1, 10, 100], "model__penalty": ["l1", "l2"]},
                     12,  # exhaustive: 6 × 2 = 12 combinations
                 ),
                 (
                     "rf",
-                    utils.build_best_pipeline("rf", {}, y_train),
+                    utils.build_pipeline("rf", {}, y_train),
                     {
                         "model__n_estimators":     [100, 200, 300, 500],
                         "model__max_depth":        [3, 5, 10, None],
@@ -66,7 +66,7 @@ if __name__ == "__main__":
                 ),
                 (
                     "xgb",
-                    utils.build_best_pipeline("xgb", {}, y_train),
+                    utils.build_pipeline("xgb", {}, y_train),
                     {
                         "model__n_estimators":     [100, 200, 300],
                         "model__max_depth":        [3, 5, 7],
