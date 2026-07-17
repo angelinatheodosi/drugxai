@@ -1,13 +1,7 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from xgboost import XGBClassifier
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import RandomizedSearchCV, PredefinedSplit
 from sklearn.metrics import average_precision_score, roc_auc_score
-from sklearn.pipeline import Pipeline
 from sklearn.base import clone
 import os
 import utils
@@ -52,29 +46,16 @@ if __name__ == "__main__":
             split_index = [-1] * len(X_train) + [0] * len(X_valid)
             ps = PredefinedSplit(test_fold=split_index)
 
-            neg = (y_train == 0).sum()
-            pos = (y_train == 1).sum()
-            spw = neg / pos if pos > 0 else 1.0
-
             experiments = [
                 (
                     "logistic",
-                    Pipeline([
-                        ("imputer", SimpleImputer(strategy="median")),
-                        ("scaler",  StandardScaler()),
-                        ("model",   LogisticRegression(max_iter=10000, class_weight="balanced",
-                                                       random_state=42, solver="liblinear")),
-                    ]),
+                    utils.build_best_pipeline("logistic", {}, y_train),
                     {"model__C": [0.001, 0.01, 0.1, 1, 10, 100], "model__penalty": ["l1", "l2"]},
                     12,  # exhaustive: 6 × 2 = 12 combinations
                 ),
                 (
                     "rf",
-                    Pipeline([
-                        ("imputer", SimpleImputer(strategy="median")),
-                        ("model",   RandomForestClassifier(class_weight="balanced",
-                                                           random_state=42, n_jobs=-1)),
-                    ]),
+                    utils.build_best_pipeline("rf", {}, y_train),
                     {
                         "model__n_estimators":     [100, 200, 300, 500],
                         "model__max_depth":        [3, 5, 10, None],
@@ -85,11 +66,7 @@ if __name__ == "__main__":
                 ),
                 (
                     "xgb",
-                    Pipeline([
-                        ("imputer", SimpleImputer(strategy="median")),
-                        ("model",   XGBClassifier(scale_pos_weight=spw, random_state=42,
-                                                  eval_metric="logloss")),
-                    ]),
+                    utils.build_best_pipeline("xgb", {}, y_train),
                     {
                         "model__n_estimators":     [100, 200, 300],
                         "model__max_depth":        [3, 5, 7],

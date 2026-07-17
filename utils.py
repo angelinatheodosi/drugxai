@@ -29,6 +29,13 @@ def get_feature_columns(df: pd.DataFrame, label_col="Y"):
     feat_cols = [c for c in numeric_cols if c not in exclude_cols]
     return feat_cols
 
+# Untuned settings used for the baseline comparison
+BASELINE_PARAMS = {
+    "logistic": {},
+    "rf":  {"n_estimators": 100},
+    "xgb": {"n_estimators": 100},
+}
+
 # Train and evaluate a model
 def run_experiment(df: pd.DataFrame, model_type="logistic"):
     label_col = "Y"
@@ -52,32 +59,10 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
     X_test = np.clip(test_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e30, 1e30)
     y_test = test_df[label_col].values
 
-    if model_type == "logistic":
-        model = LogisticRegression(max_iter=10000, class_weight="balanced", random_state=42, solver="liblinear")
-        steps = [
-            ("imputer", SimpleImputer(strategy="median")),
-            ("scaler", StandardScaler()),
-            ("model", model)
-        ]
-    elif model_type == "rf":
-        model = RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42, n_jobs=-1)
-        steps = [
-            ("imputer", SimpleImputer(strategy="median")),
-            ("model", model)
-        ]
-    elif model_type == "xgb":
-        neg = (y_train == 0).sum()
-        pos = (y_train == 1).sum()
-        spw = neg / pos if pos > 0 else 1.0
-        model = XGBClassifier(n_estimators=100, scale_pos_weight=spw, random_state=42, eval_metric="logloss")
-        steps = [
-            ("imputer", SimpleImputer(strategy="median")),
-            ("model", model)
-        ]
-    else:
+    if model_type not in BASELINE_PARAMS:
         raise ValueError(f"Unknown model_type: {model_type}")
 
-    clf = Pipeline(steps=steps)
+    clf = build_best_pipeline(model_type, BASELINE_PARAMS[model_type], y_train)
     clf.fit(X_train, y_train)
 
     # Predict probabilities for evaluation

@@ -34,19 +34,7 @@ if __name__ == "__main__":
     keep_cols = ["dataset", "features", "model"] + metric_cols
     results_df = results_df[keep_cols]
 
-    table_df = results_df.pivot_table(
-        index=["dataset", "features"],
-        columns="model",
-        values=metric_cols,
-        aggfunc="first"
-    )
-
-    # Flatten column names for a cleaner CSV export
-    table_df.columns = [f"{metric}_{model}" for metric, model in table_df.columns]
-
     os.makedirs("results", exist_ok=True)
     results_df.to_csv("results/baseline_comparison_results.csv", index=False)
-    table_df.to_csv("results/baseline_comparison_table.csv")
 
     print("Saved: results/baseline_comparison_results.csv")
-    print("Saved: results/baseline_comparison_table.csv")
