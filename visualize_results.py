@@ -100,25 +100,18 @@ for metric in ["test_ROC-AUC", "test_PR-AUC"]:
     print(f"Saved: {fname}")
 
 
-# Best model per (dataset, features) table 
-base_df = pd.read_csv("results/baseline_comparison_results.csv").rename(
-    columns={"PR-AUC": "test_PR-AUC", "ROC-AUC": "test_ROC-AUC"}
-)[["dataset", "features", "model", "test_PR-AUC", "test_ROC-AUC"]]
-base_df["source"] = "baseline"
-
-tuned_sub = df[["dataset", "features", "model", "test_PR-AUC", "test_ROC-AUC"]].copy()
-tuned_sub["source"] = "tuned"
-
-all_models = pd.concat([base_df, tuned_sub], ignore_index=True)
-
+# Best model per (dataset, features) table.
+# Selection is by validation PR-AUC among the tuned models — consistent with
+# load_best_models() (used by evaluate_models.py and the SHAP scripts).
+# Test scores are reported as the final, unbiased performance of that model.
 best_rows = []
-for (dataset, ftype), group in all_models.groupby(["dataset", "features"]):
-    best = group.loc[group["test_PR-AUC"].idxmax()]
+for (dataset, ftype), group in df.groupby(["dataset", "features"]):
+    best = group.loc[group["valid_PR-AUC"].idxmax()]
     best_rows.append({
         "Dataset":       DATASET_LABELS.get(dataset, dataset),
         "Features":      ftype.capitalize(),
         "Best Model":    MODEL_LABELS.get(best["model"], best["model"]),
-        "Source":        best["source"],
+        "Valid PR-AUC":  round(best["valid_PR-AUC"], 4),
         "Test PR-AUC":   round(best["test_PR-AUC"], 4),
         "Test ROC-AUC":  round(best["test_ROC-AUC"], 4),
     })
