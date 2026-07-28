@@ -20,12 +20,14 @@ DATASETS = ["carcinogens", "clintox", "skin_reaction"]
 MODELS   = ["logistic", "rf", "xgb"]
 
 # Grouped bar chart per dataset (ROC-AUC & PR-AUC)
+# First loop for ROC-AUC, second loop for PR-AUC
 for metric in ["test_ROC-AUC", "test_PR-AUC"]:
     fig, axes = plt.subplots(1, 3, figsize=(14, 4.5), sharey=False)
-    metric_label = metric.replace("test_", "")
+    metric_label = metric.replace("test_", "") # clear label for y-axis
 
+    # Loop through datasets and plot bars for each model and feature type
     for ax, dataset in zip(axes, DATASETS):
-        sub = df[df["dataset"] == dataset]
+        sub = df[df["dataset"] == dataset] # keeps only the lines from specific dataset
         x = np.arange(len(MODELS))
         width = 0.35
 
