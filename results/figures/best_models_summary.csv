@@ -1,7 +1,7 @@
-Dataset,Features,Best Model,Valid PR-AUC,Test PR-AUC,Test ROC-AUC
-Carcinogens,Chemberta,Logistic Regression,0.8583,0.5636,0.797
-Carcinogens,Rdkit,Logistic Regression,0.8625,0.5792,0.8091
-ClinTox,Chemberta,XGBoost,0.3559,0.2656,0.719
-ClinTox,Rdkit,Logistic Regression,0.6464,0.3611,0.8106
-Skin Reaction,Chemberta,Random Forest,0.7996,0.7097,0.6681
-Skin Reaction,Rdkit,Logistic Regression,0.7615,0.52,0.4547
+Dataset,Features,Best Model,Config,Valid PR-AUC,Test PR-AUC,Test ROC-AUC
+Carcinogens,Chemberta,Logistic Regression,tuned,0.8583,0.5636,0.797
+Carcinogens,Rdkit,Logistic Regression,tuned,0.8625,0.5792,0.8091
+ClinTox,Chemberta,XGBoost,tuned,0.3859,0.2883,0.723
+ClinTox,Rdkit,Logistic Regression,tuned,0.6464,0.3611,0.8106
+Skin Reaction,Chemberta,Random Forest,tuned,0.8182,0.6647,0.6669
+Skin Reaction,Rdkit,Logistic Regression,tuned,0.7615,0.52,0.4547

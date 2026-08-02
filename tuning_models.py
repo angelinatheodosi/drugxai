@@ -59,22 +59,22 @@ if __name__ == "__main__":
                     {
                         "model__n_estimators":     [100, 200, 300, 500],
                         "model__max_depth":        [3, 5, 10, None],
-                        "model__min_samples_leaf": [2, 5, 10],
+                        "model__min_samples_leaf": [1, 2, 5, 10],  # 1 = baseline default
                         "model__max_features":     ["sqrt", "log2", 0.3],
                     },
-                    20,  # 144 combinations total
+                    20,  # 192 combinations total; grid includes the baseline config
                 ),
                 (
                     "xgb",
                     utils.build_pipeline("xgb", {}, y_train),
                     {
                         "model__n_estimators":     [100, 200, 300],
-                        "model__max_depth":        [3, 5, 7],
-                        "model__learning_rate":    [0.01, 0.05, 0.1, 0.2],
+                        "model__max_depth":        [3, 5, 6, 7],       # 6 = baseline default
+                        "model__learning_rate":    [0.01, 0.05, 0.1, 0.2, 0.3],  # 0.3 = baseline default
                         "model__subsample":        [0.7, 0.8, 1.0],
                         "model__colsample_bytree": [0.7, 0.8, 1.0],
                     },
-                    30,  # 324 combinations total
+                    30,  # 540 combinations total; grid includes the baseline config
                 ),
             ]
 
@@ -90,21 +90,41 @@ if __name__ == "__main__":
                 )
                 search.fit(X_combined, y_combined)
 
-                # Refit the winning config on TRAIN ONLY, so valid stays a clean hold-out
-                best = clone(pipe).set_params(**search.best_params_)
-                best.fit(X_train, y_train)
-                p_valid = best.predict_proba(X_valid)[:, 1]
-                p_test  = best.predict_proba(X_test)[:, 1]
+                # Two candidates, both refit on TRAIN ONLY so valid stays a clean hold-out:
+                #   - "tuned":    the winning config from the random search
+                #   - "baseline": the untuned defaults from utils.BASELINE_PARAMS
+                # We keep whichever scores higher on validation PR-AUC. This guarantees the
+                # selected model is never worse than baseline on validation, regardless of
+                # whether the random search happened to sample the baseline config.
+                tuned_params    = search.best_params_
+                baseline_params = {f"model__{k}": v
+                                   for k, v in utils.BASELINE_PARAMS[mtype].items()}
+
+                candidates = []
+                for tag, params in [("tuned", tuned_params), ("baseline", baseline_params)]:
+                    est = clone(pipe).set_params(**params)
+                    est.fit(X_train, y_train)
+                    pv = est.predict_proba(X_valid)[:, 1]
+                    pt = est.predict_proba(X_test)[:, 1]
+                    candidates.append({
+                        "selected":      tag,
+                        "best_params":   str(params),
+                        "valid_PR-AUC":  safe_ap(y_valid, pv),
+                        "valid_ROC-AUC": safe_auc(y_valid, pv),
+                        "test_PR-AUC":   safe_ap(y_test, pt),
+                        "test_ROC-AUC":  safe_auc(y_test, pt),
+                    })
+
+                # Pick the candidate with the higher validation PR-AUC (NaN treated as -inf).
+                winner = max(candidates,
+                             key=lambda c: c["valid_PR-AUC"] if not np.isnan(c["valid_PR-AUC"])
+                             else -np.inf)
 
                 all_results.append({
-                    "dataset":       name,
-                    "features":      fname,
-                    "model":         mtype,
-                    "best_params":   str(search.best_params_),
-                    "valid_PR-AUC":  safe_ap(y_valid, p_valid),
-                    "valid_ROC-AUC": safe_auc(y_valid, p_valid),
-                    "test_PR-AUC":   safe_ap(y_test, p_test),
-                    "test_ROC-AUC":  safe_auc(y_test, p_test),
+                    "dataset":  name,
+                    "features": fname,
+                    "model":    mtype,
+                    **winner,
                 })
 
     os.makedirs("results", exist_ok=True)
