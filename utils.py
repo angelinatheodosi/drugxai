@@ -86,7 +86,7 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
     }
 
 
-def load_best_models(tuning_csv="results/tuning_results.csv"):
+def load_best_models(tuning_csv="results/model_results.csv"):
     """Return best model config per (dataset, features) keyed by valid_PR-AUC."""
     df = pd.read_csv(tuning_csv)
     best = {}

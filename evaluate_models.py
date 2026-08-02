@@ -137,7 +137,7 @@ if __name__ == "__main__":
         ax.legend(fontsize=8)
         ax.grid(alpha=0.3)
 
-    fig.suptitle("ROC Curves — Best Tuned Models (RDKit vs ChemBERTa)", fontsize=13)
+    fig.suptitle("ROC Curves — Best Selected Models (RDKit vs ChemBERTa)", fontsize=13)
     plt.tight_layout()
     plt.savefig("results/evaluation/roc_all.png", dpi=150, bbox_inches="tight")
     plt.close()

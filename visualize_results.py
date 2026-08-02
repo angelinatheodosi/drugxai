@@ -7,7 +7,7 @@ import os
 
 os.makedirs("results/figures", exist_ok=True)
 
-df = pd.read_csv("results/tuning_results.csv")
+df = pd.read_csv("results/model_results.csv")
 
 DATASET_LABELS = {
     "carcinogens": "Carcinogens",
@@ -52,7 +52,7 @@ for metric in ["test_ROC-AUC", "test_PR-AUC"]:
         ax.legend(fontsize=8)
         ax.grid(axis="y", linestyle="--", alpha=0.4)
 
-    fig.suptitle(f"Tuned Models — Test {metric_label} (RDKit vs ChemBERTa)", fontsize=13, y=1.01)
+    fig.suptitle(f"Selected Models — Test {metric_label} (RDKit vs ChemBERTa)", fontsize=13, y=1.01)
     plt.tight_layout()
     fname = f"results/figures/bar_{metric_label.replace('-','_').lower()}.png"
     plt.savefig(fname, dpi=150, bbox_inches="tight")
@@ -94,7 +94,7 @@ for metric in ["test_ROC-AUC", "test_PR-AUC"]:
     for k in range(1, len(DATASETS)):
         ax.axhline(k * 2 - 0.5, color="white", linewidth=2)
 
-    ax.set_title(f"Test {metric_label} — Tuned Models", fontsize=12, fontweight="bold")
+    ax.set_title(f"Test {metric_label} — Selected Models", fontsize=12, fontweight="bold")
     plt.tight_layout()
     fname = f"results/figures/heatmap_{metric_label.replace('-','_').lower()}.png"
     plt.savefig(fname, dpi=150, bbox_inches="tight")
