@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-import seaborn as sns
 import os
 
 os.makedirs("results/figures", exist_ok=True)

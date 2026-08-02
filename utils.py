@@ -36,7 +36,7 @@ BASELINE_PARAMS = {
     "xgb": {"n_estimators": 100},
 }
 
-# Train and evaluate a model
+# Train and evaluate a model only on the baseline parameters 
 def run_experiment(df: pd.DataFrame, model_type="logistic"):
     label_col = "Y"
     feat_cols = get_feature_columns(df, label_col=label_col)
@@ -85,9 +85,8 @@ def run_experiment(df: pd.DataFrame, model_type="logistic"):
         "valid_PR-AUC": compute_ap(y_valid, p_valid)
     }
 
-
+# Return best model config per (dataset, features) keyed by valid_PR-AUC.
 def load_best_models(tuning_csv="results/model_results.csv"):
-    """Return best model config per (dataset, features) keyed by valid_PR-AUC."""
     df = pd.read_csv(tuning_csv)
     best = {}
     for (dataset, ftype), group in df.groupby(["dataset", "features"]):
@@ -97,9 +96,8 @@ def load_best_models(tuning_csv="results/model_results.csv"):
         best[(dataset, ftype)] = {"mtype": row["model"], "params": params}
     return best
 
-
+# Build pipeline with tuned parameters and return it as a scikit-learn Pipeline object. 
 def build_pipeline(mtype, params, y_train=None):
-    """Build a Pipeline with class-weight imbalance handling and tuned params."""
     spw = 1.0
     if mtype == "xgb" and y_train is not None:
         neg, pos = (y_train == 0).sum(), (y_train == 1).sum()
