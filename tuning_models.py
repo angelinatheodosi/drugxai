@@ -41,6 +41,7 @@ if __name__ == "__main__":
             X_test  = np.clip(test_df[feat_cols].replace([np.inf, -np.inf], np.nan).values, -1e30, 1e30)
             y_test  = test_df["Y"].values
 
+            # Combine train and valid sets for hyperparameter tuning, and create a PredefinedSplit rule to ensure that the validation set is used for scoring.
             X_combined = np.vstack([X_train, X_valid])
             y_combined = np.concatenate([y_train, y_valid])
             split_index = [-1] * len(X_train) + [0] * len(X_valid)
@@ -84,30 +85,26 @@ if __name__ == "__main__":
                     n_iter=n_iter,
                     scoring="average_precision",
                     cv=ps,
-                    refit=False,          # don't refit on train+valid; we refit on train only below
+                    refit=False,          # don't refit on train+valid, manual refit on train only below
                     random_state=42,
                     n_jobs=-1,
                 )
+                # Find the best hyperparameters
                 search.fit(X_combined, y_combined)
 
-                # Two candidates, both refit on TRAIN ONLY so valid stays a clean hold-out:
-                #   - "tuned":    the winning config from the random search
-                #   - "baseline": the untuned defaults from utils.BASELINE_PARAMS
-                # We keep whichever scores higher on validation PR-AUC. This guarantees the
-                # selected model is never worse than baseline on validation, regardless of
-                # whether the random search happened to sample the baseline config.
+                # Compare the best tuned model to the baseline model by refitting both on the training set and evaluating on the validation set
                 tuned_params    = search.best_params_
                 baseline_params = {f"model__{k}": v
                                    for k, v in utils.BASELINE_PARAMS[mtype].items()}
 
                 candidates = []
-                for tag, params in [("tuned", tuned_params), ("baseline", baseline_params)]:
-                    est = clone(pipe).set_params(**params)
-                    est.fit(X_train, y_train)
-                    pv = est.predict_proba(X_valid)[:, 1]
-                    pt = est.predict_proba(X_test)[:, 1]
+                for cand, params in [("tuned", tuned_params), ("baseline", baseline_params)]:
+                    estimator = clone(pipe).set_params(**params)
+                    estimator.fit(X_train, y_train)
+                    pv = estimator.predict_proba(X_valid)[:, 1]
+                    pt = estimator.predict_proba(X_test)[:, 1]
                     candidates.append({
-                        "selected":      tag,
+                        "selected":      cand,
                         "best_params":   str(params),
                         "valid_PR-AUC":  safe_ap(y_valid, pv),
                         "valid_ROC-AUC": safe_auc(y_valid, pv),
@@ -115,7 +112,7 @@ if __name__ == "__main__":
                         "test_ROC-AUC":  safe_auc(y_test, pt),
                     })
 
-                # Pick the candidate with the higher validation PR-AUC (NaN treated as -inf).
+                # Keep the candidate with the higher validation PR-AUC (NaN treated as -inf)
                 winner = max(candidates,
                              key=lambda c: c["valid_PR-AUC"] if not np.isnan(c["valid_PR-AUC"])
                              else -np.inf)
