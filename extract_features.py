@@ -12,15 +12,24 @@ all_descriptor_names = sorted([name for name, _ in Descriptors._descList])
 # Initialize the calculator
 calculator = MoleculeDescriptors.MolecularDescriptorCalculator(all_descriptor_names)
 
+# Index of Ipc in the descriptor list. The default Ipc (avg=False) grows
+# factorially with molecule size (values up to ~1e12), which destabilizes the
+# models and SHAP. We override it with the averaged version (avg=True), which is
+# bounded (~2-3) and numerically stable.
+IPC_IDX = all_descriptor_names.index("Ipc")
+
 def extract_rdkit_features(smiles):
     try:
         mol = Chem.MolFromSmiles(smiles)
         # If mol is None, return NaN for all features, to keep the same shape
         if mol is None:
             return [np.nan] * len(all_descriptor_names)
-        
+
         # Use the calculator for batch computation of all descriptors
-        return list(calculator.CalcDescriptors(mol))
+        values = list(calculator.CalcDescriptors(mol))
+        # Replace the exploding Ipc with its averaged, bounded version
+        values[IPC_IDX] = Descriptors.Ipc(mol, avg=True)
+        return values
     except Exception as e:
         print(f"Error processing SMILES {smiles}: {e}")
         return [np.nan] * len(all_descriptor_names)

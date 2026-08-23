@@ -2,6 +2,6 @@ Dataset,Features,Model,Precision (0),Recall (0),F1 (0),Precision (1),Recall (1),
 Carcinogens,Chemberta,Logistic Regression,0.8636,0.8444,0.8539,0.4167,0.4545,0.4348,0.6444,0.797,0.5636
 Carcinogens,Rdkit,Logistic Regression,0.8864,0.8667,0.8764,0.5,0.5455,0.5217,0.6991,0.8091,0.5792
 ClinTox,Chemberta,XGBoost,0.9303,0.978,0.9536,0.4,0.1667,0.2353,0.5944,0.723,0.2883
-ClinTox,Rdkit,Logistic Regression,0.9453,0.8864,0.9149,0.2439,0.4167,0.3077,0.6113,0.8106,0.3611
+ClinTox,Rdkit,Logistic Regression,0.9453,0.8864,0.9149,0.2439,0.4167,0.3077,0.6113,0.8107,0.3612
 Skin Reaction,Chemberta,Random Forest,0.5714,0.3429,0.4286,0.623,0.8085,0.7037,0.5661,0.6669,0.6647
-Skin Reaction,Rdkit,Logistic Regression,0.4762,0.2857,0.3571,0.5902,0.766,0.6667,0.5119,0.4547,0.52
+Skin Reaction,Rdkit,Logistic Regression,0.4528,0.6857,0.5455,0.6207,0.383,0.4737,0.5096,0.6638,0.6375
