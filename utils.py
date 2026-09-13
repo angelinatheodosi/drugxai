@@ -31,7 +31,7 @@ def get_feature_columns(df: pd.DataFrame, label_col="Y"):
 
 # Build pipeline with tuned parameters and return it as a scikit-learn Pipeline object. 
 def build_pipeline(mtype, params, y_train=None):
-    spw = 1.0
+    spw = 1.0 # scale positive weight, default value
     if mtype == "xgb" and y_train is not None:
         neg, pos = (y_train == 0).sum(), (y_train == 1).sum()
         spw = neg / pos if pos > 0 else 1.0
