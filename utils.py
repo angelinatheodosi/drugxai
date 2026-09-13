@@ -29,6 +29,39 @@ def get_feature_columns(df: pd.DataFrame, label_col="Y"):
     feat_cols = [c for c in numeric_cols if c not in exclude_cols]
     return feat_cols
 
+# Build pipeline with tuned parameters and return it as a scikit-learn Pipeline object. 
+def build_pipeline(mtype, params, y_train=None):
+    spw = 1.0
+    if mtype == "xgb" and y_train is not None:
+        neg, pos = (y_train == 0).sum(), (y_train == 1).sum()
+        spw = neg / pos if pos > 0 else 1.0
+
+    if mtype == "logistic":
+        model = LogisticRegression(
+            max_iter=10000, class_weight="balanced", random_state=42,
+            solver="liblinear", **params
+        )
+        return Pipeline([
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+            ("model", model),
+        ])
+    elif mtype == "rf":
+        model = RandomForestClassifier(
+            class_weight="balanced", random_state=42, n_jobs=-1, **params
+        )
+    elif mtype == "xgb":
+        model = XGBClassifier(
+            scale_pos_weight=spw, random_state=42, eval_metric="logloss", **params
+        )
+    else:
+        raise ValueError(f"Unknown model type: {mtype}")
+
+    return Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("model", model),
+    ])
+
 # Untuned settings used for the baseline comparison
 BASELINE_PARAMS = {
     "logistic": {},
@@ -96,35 +129,4 @@ def load_best_models(tuning_csv="results/model_results.csv"):
         best[(dataset, ftype)] = {"mtype": row["model"], "params": params}
     return best
 
-# Build pipeline with tuned parameters and return it as a scikit-learn Pipeline object. 
-def build_pipeline(mtype, params, y_train=None):
-    spw = 1.0
-    if mtype == "xgb" and y_train is not None:
-        neg, pos = (y_train == 0).sum(), (y_train == 1).sum()
-        spw = neg / pos if pos > 0 else 1.0
 
-    if mtype == "logistic":
-        model = LogisticRegression(
-            max_iter=10000, class_weight="balanced", random_state=42,
-            solver="liblinear", **params
-        )
-        return Pipeline([
-            ("imputer", SimpleImputer(strategy="median")),
-            ("scaler", StandardScaler()),
-            ("model", model),
-        ])
-    elif mtype == "rf":
-        model = RandomForestClassifier(
-            class_weight="balanced", random_state=42, n_jobs=-1, **params
-        )
-    elif mtype == "xgb":
-        model = XGBClassifier(
-            scale_pos_weight=spw, random_state=42, eval_metric="logloss", **params
-        )
-    else:
-        raise ValueError(f"Unknown model type: {mtype}")
-
-    return Pipeline([
-        ("imputer", SimpleImputer(strategy="median")),
-        ("model", model),
-    ])
