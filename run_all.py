@@ -3,8 +3,8 @@ Full pipeline runner.
 Runs all steps in order. Stops immediately if any step fails.
 
 Usage:
-    python run_all.py            # run everything (extract steps included)
-    python run_all.py --skip-extract   # skip slow feature extraction
+    python run_all.py            # runs everything (extract steps included)
+    python run_all.py --skip-extract   # skips feature extraction
 """
 import subprocess
 import sys

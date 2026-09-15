@@ -101,10 +101,8 @@ for metric in ["test_ROC-AUC", "test_PR-AUC"]:
     print(f"Saved: {fname}")
 
 
-# Best model per (dataset, features) table.
-# Selection is by validation PR-AUC among the tuned models — consistent with
-# load_best_models() (used by evaluate_models.py and the SHAP scripts).
-# Test scores are reported as the final, unbiased performance of that model.
+# Best model per (dataset, features) table
+# Selection is by validation PR-AUC among the tuned models
 best_rows = []
 for (dataset, ftype), group in df.groupby(["dataset", "features"]):
     best = group.loc[group["valid_PR-AUC"].idxmax()]
@@ -112,7 +110,7 @@ for (dataset, ftype), group in df.groupby(["dataset", "features"]):
         "Dataset":       DATASET_LABELS.get(dataset, dataset),
         "Features":      ftype.capitalize(),
         "Best Model":    MODEL_LABELS.get(best["model"], best["model"]),
-        "Config":        best["selected"],  # "tuned" or "baseline"
+        "Config":        best["selected"],  # tuned or baseline
         "Valid PR-AUC":  round(best["valid_PR-AUC"], 4),
         "Test PR-AUC":   round(best["test_PR-AUC"], 4),
         "Test ROC-AUC":  round(best["test_ROC-AUC"], 4),
