@@ -10,10 +10,10 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
 
-# Load dataset from TDC and perform scaffold split
-def load_tdc_dataset(tdc_name):
+# Load dataset from TDC and split it ("scaffold" or "random"); defaults give the main experiment's split
+def load_tdc_dataset(tdc_name, split_method="scaffold", seed=42):
     data = Tox(name=tdc_name)
-    split_data = data.get_split(method="scaffold")
+    split_data = data.get_split(method=split_method, seed=seed)
 
     # Combine split sets
     df = pd.concat([split_data["train"], split_data["valid"], split_data["test"]], axis=0)

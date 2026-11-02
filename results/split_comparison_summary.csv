@@ -1,0 +1,15 @@
+,,,,test_ROC-AUC,test_ROC-AUC,test_PR-AUC,test_PR-AUC,test_pos_rate,test_pos_rate
+,,,,mean,std,mean,std,mean,std
+dataset,features,model,split,,,,,,
+carcinogens,chemberta,logistic,random,0.824,0.05,0.71,0.071,0.221,0.027
+carcinogens,chemberta,logistic,scaffold,0.744,0.143,0.532,0.212,0.196,0.028
+carcinogens,rdkit,logistic,random,0.843,0.043,0.702,0.124,0.221,0.027
+carcinogens,rdkit,logistic,scaffold,0.779,0.17,0.58,0.249,0.196,0.028
+clintox,chemberta,xgb,random,0.771,0.063,0.254,0.092,0.076,0.007
+clintox,chemberta,xgb,scaffold,0.756,0.032,0.284,0.034,0.086,0.019
+clintox,rdkit,logistic,random,0.856,0.039,0.402,0.068,0.076,0.007
+clintox,rdkit,logistic,scaffold,0.813,0.08,0.414,0.124,0.086,0.019
+skin_reaction,chemberta,rf,random,0.749,0.028,0.84,0.031,0.667,0.038
+skin_reaction,chemberta,rf,scaffold,0.732,0.047,0.785,0.084,0.61,0.066
+skin_reaction,rdkit,logistic,random,0.752,0.075,0.848,0.047,0.667,0.038
+skin_reaction,rdkit,logistic,scaffold,0.659,0.101,0.697,0.097,0.61,0.066
