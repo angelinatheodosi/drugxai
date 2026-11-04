@@ -21,8 +21,8 @@ SUMMARY_CSV = "results/split_comparison_summary.csv"          # scaffold vs rand
 
 
 def run_comparison():
-    # Best model type per (dataset, features), chosen by valid PR-AUC on the scaffold split.
-    # Only the model type is kept because hyperparameters are re-tuned on every split.
+    # Best model type per (dataset, features), chosen by valid PR-AUC on the scaffold split
+    # Only the model type is kept because hyperparameters are re-tuned on every split
     best_models = utils.load_best_models()
 
     all_results = []
@@ -32,15 +32,14 @@ def run_comparison():
             if not os.path.exists(path):
                 print(f"File {path} not found. Skipping...")
                 continue
-            # We only replace the split column because features are pre-computed and fixed for each dataset and feature type.
+            # only replace the split column because features are pre-computed and fixed for each dataset and feature type
             df = pd.read_csv(path)
             feat_cols = utils.get_feature_columns(df)
             mtype = best_models[(name, fname)]["mtype"]
 
             for method in SPLITS:
                 for base_seed in SEEDS:
-                    # If valid or test has only one class, ROC/PR-AUC are undefined and tuning is blind,
-                    # so move to seed + SEED_STEP (large step to avoid reusing another seed in SEEDS).
+                    # If valid or test has only one class, move to seed + SEED_STEP until a valid split is found, up to MAX_SEED_TRIES times
                     seed = base_seed
                     for _ in range(MAX_SEED_TRIES):
                         split_df = utils.load_tdc_dataset(tdc_name, split_method=method, seed=seed)
@@ -82,12 +81,11 @@ def run_comparison():
     return results
 
 
-# Scaffold vs random per (metric, dataset, features): mean and std over seeds,
+# Scaffold vs random per (metric, dataset, features): mean and std over seeds
 # diff = random − scaffold and Welch t-test p-value
 def summarize(results):
     results = results.copy()
-    # PR-AUC of a random predictor equals the positive rate, so lift = PR-AUC / positive rate
-    # removes the effect of different positive rates between split methods
+    # lift = PR-AUC / positive rate
     results["test_PR_lift"] = results["test_PR-AUC"] / results["test_pos_rate"]
 
     rows = []
