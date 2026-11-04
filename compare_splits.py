@@ -12,7 +12,9 @@ DATASETS = [
 ]
 FEATURE_TYPES = ["rdkit", "chemberta"]
 SPLITS = ["scaffold", "random"]
-SEEDS = [42, 1, 2, 3, 4]  
+SEEDS = [42, 1, 2, 3, 4]
+SEED_STEP = 100      # replacement seed = seed + SEED_STEP when a split has a single-class valid/test set
+MAX_SEED_TRIES = 10
 
 
 if __name__ == "__main__":
@@ -33,9 +35,20 @@ if __name__ == "__main__":
             mtype = best_models[(name, fname)]["mtype"]
 
             for method in SPLITS:
-                for seed in SEEDS:
-                    split_df = utils.load_tdc_dataset(tdc_name, split_method=method, seed=seed)
-                    df["split"] = df["Drug_ID"].map(split_df.set_index("Drug_ID")["split"])
+                for base_seed in SEEDS:
+                    # If valid or test has only one class, ROC/PR-AUC are undefined and tuning is blind,
+                    # so move to seed + SEED_STEP (large step to avoid reusing another seed in SEEDS).
+                    seed = base_seed
+                    for _ in range(MAX_SEED_TRIES):
+                        split_df = utils.load_tdc_dataset(tdc_name, split_method=method, seed=seed)
+                        df["split"] = df["Drug_ID"].map(split_df.set_index("Drug_ID")["split"])
+                        if (df.loc[df["split"] == "valid", "Y"].nunique() == 2
+                                and df.loc[df["split"] == "test", "Y"].nunique() == 2):
+                            break
+                        print(f"{name} {method} seed={seed}: single-class valid/test, trying seed={seed + SEED_STEP}")
+                        seed += SEED_STEP
+                    else:
+                        raise RuntimeError(f"No valid {method} split found for {name} starting from seed={base_seed}")
 
                     train_df = df[df["split"] == "train"]
                     valid_df = df[df["split"] == "valid"]
@@ -55,6 +68,7 @@ if __name__ == "__main__":
                         "model":    mtype,
                         "split":    method,
                         "seed":     seed,
+                        "base_seed": base_seed,
                         "test_pos_rate": y_test.mean(),  
                         **winner,
                     })
