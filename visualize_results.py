@@ -111,9 +111,9 @@ for (dataset, ftype), group in df.groupby(["dataset", "features"]):
         "Features":      ftype.capitalize(),
         "Best Model":    MODEL_LABELS.get(best["model"], best["model"]),
         "Config":        best["selected"],  # tuned or baseline
-        "Valid PR-AUC":  round(best["valid_PR-AUC"], 4),
-        "Test PR-AUC":   round(best["test_PR-AUC"], 4),
-        "Test ROC-AUC":  round(best["test_ROC-AUC"], 4),
+        "Valid PR-AUC":  best["valid_PR-AUC"],
+        "Test PR-AUC":   best["test_PR-AUC"],
+        "Test ROC-AUC":  best["test_ROC-AUC"],
     })
 
 best_df = pd.DataFrame(best_rows)
